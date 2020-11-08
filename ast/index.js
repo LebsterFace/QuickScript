@@ -6,7 +6,7 @@ const A = require("arcsecond"),
 const inside = (char1, char2) => A.between(A.char(char1))(A.char(char2)),
 	escapeableBetween = char => inside(char, char)(A.many(A.choice([A.str("\\\\"), A.str("\\" + char), A.anyCharExcept(A.char(char))])).map(a => a.join(""))),
 	asType = type => value => ({type, value}),
-	peek = A.lookAhead(A.regex(/^./));
+	peek = A.peek.map(String.fromCharCode);
 
 const optionalWhitespace = A.many(A.anyOfString(" \t")),
 	singleQuotedString = escapeableBetween("'"),
@@ -108,7 +108,7 @@ const assignment = A.coroutine(function*() {
 }).map(asType(T.ASSIGNMENT));
 
 const blockStatement = (name, beforeBlock) => A.coroutine(function*() {
-	const blockName = yield A.str(name);
+	yield A.str(name);
 	yield optionalWhitespace;
 	const data = yield beforeBlock;
 	yield A.optionalWhitespace;
@@ -117,25 +117,26 @@ const blockStatement = (name, beforeBlock) => A.coroutine(function*() {
 	const content = [];
 
 	while (true) {
-		let nextChar = yield peek;
-		if (nextChar === "}") break;
+		if ((yield peek) === "}") break;
 		yield optionalWhitespace;
-
-		nextChar = yield peek;
-		if (nextChar === "}") break;
+		
+		if ((yield peek) === "}") break;
 		content.push(yield line);
-
+		
+		if ((yield peek) === "}") break;
 		yield commandSeperator;
 	}
 
-	return {blockName: name, data, content};
+	yield A.char("}");
+
+	return {name, data, content};
 }).map(asType(T.BLOCK));
 
 const ifStatement = blockStatement("if", boolean);
-const line = A.choice([assignment, command]);
+const line = A.choice([ifStatement, assignment, command]);
 const program = A.sepBy(commandSeperator)(line);
 //#endregion
 
 module.exports = function(code) {
-	return ifStatement.run(code.replace(/\r\n/g, "\n"));
+	return program.run(code.replace(/\r\n/g, "\n"));
 };

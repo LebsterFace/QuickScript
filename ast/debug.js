@@ -5,30 +5,31 @@ const {inspect} = require("util"),
 function display(AST) {
     console.log(AST.map(resolve).join("\n"));
 
-    function resolve(thing) {
+    function resolve(thing, tabs = 0) {
         if (!thing) return "Nothing";
         const {value, type} = thing;
+        const tabString = "\t".repeat(tabs);
         switch (type) {
             case T.STATEMENT:
-                return `STATEMENT (${value.name}): ${value.args.map(resolve).join(" / ")}`;
+                return tabString + `STATEMENT (${value.name}): ${value.args.map(resolve).join(" / ")}`;
             case T.ASSIGNMENT:
-                return `ASSIGNMENT ('${value.name}'): ${resolve(value.value)}`;
+                return tabString + `ASSIGNMENT ('${value.name}'): ${resolve(value.value)}`;
             case T.STRING:
-                return `STRING ('${value}')`;
+                return tabString + `STRING ('${value}')`;
             case T.BOOLEAN:
-                return `BOOLEAN (${value})`;
+                return tabString + `BOOLEAN (${value})`;
             case T.NUMBER:
-                return `NUMBER (${value})`;
+                return tabString + `NUMBER (${value})`;
             case T.REFERENCE:
-                return `VARIABLE ('${value}')`;
+                return tabString + `VARIABLE ('${value}')`;
             case T.EXPRESSION:
-                return `EXPRESSION: ${value.map(resolve).join(" ")}`;
+                return tabString + `EXPRESSION: ${value.map(resolve).join(" ")}`;
             case T.OPERATOR:
-                return `OPERATOR ('${value}')`;
+                return tabString + `OPERATOR ('${value}')`;
             case T.BINARY_OPERATION:
-                return `BINARY OPERATION: ( ${resolve(value.a)} ) ${resolve(value.op)} ( ${resolve(value.b)} )`;
+                return tabString + `BINARY OPERATION: ( ${resolve(value.a)} ) ${resolve(value.op)} ( ${resolve(value.b)} )`;
             case T.BLOCK:
-                return `BLOCK ('${value.name}'): (${resolve(value.data)}) {\n${[value.content].flat().map(resolve).map(x => "\t" + x).join("\n")}\n}`;
+                return tabString + `BLOCK ('${value.name}'): (${resolve(value.data)}) {\n${[value.content].flat().map(x => resolve(x, tabs + 1)).join("\n")}\n${tabString}}`;
         }
     }
 }
