@@ -1,17 +1,12 @@
 # QuickScript
-![](https://img.shields.io/discord/775035801699352596?label=discord)
+[![](https://img.shields.io/discord/775035801699352596?label=discord)](https://discord.gg/s7P2YGT8mg)
 ![](https://img.shields.io/github/v/release/LebsterFace/QuickScript)
 
-**QuickScript is a simple, easy to use and quick to develop in programming language designed for small scripts.**
+**QuickScript is a language designed to compile to BrainFuck**
 
 ## Example
-```
-name = input "What's your name? "
-if name.length < 5 {
-	print `Wow {name}, you have a pretty short name`
-} else {
-	print `Hello there, {name}!`
-}
+```javascript
+// nothing yet!
 ```
 
 ## Installing
@@ -25,4 +20,4 @@ node index [inputfile]
 ```
 
 ## License
-[GNUGPLv3](https://choosealicense.com/licenses/gpl-3.0)
+[GNU GPLv3](https://choosealicense.com/licenses/gpl-3.0)

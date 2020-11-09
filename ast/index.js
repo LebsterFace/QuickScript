@@ -17,11 +17,20 @@ const optionalWhitespace = A.many(A.anyOfString(" \t")),
 	commandSeperator = A.choice([A.sequenceOf([A.char(";"), optionalWhitespace, lineFeed]), lineFeed, A.char(";")]);
 
 const string = A.choice([singleQuotedString, doubleQuotedString]).map(asType(T.STRING)),
-	boolean = A.regex(/^true|false/i).map(a => a.toLowerCase() === "true").map(asType(T.BOOLEAN)),
+	boolean = A.regex(/^(true|false)/i).map(a => a.toLowerCase() === "true").map(asType(T.BOOLEAN)),
 	reference = variableName.map(asType(T.REFERENCE)),
-	number = A.digits.map(parseInt).map(asType(T.NUMBER));
+	number = A.digits.map(parseInt).map(asType(T.NUMBER)),
+	comparison = A.coroutine(function*() {
+		const a = yield argument; // you need to do some kind of state machine
+		yield optionalWhitespace;
+		const op = yield A.choice([
+			"==", "<", ">", "!=", "<=", ">="
+		].map(A.str));
+		const b = yield argument;
+		return {a, op, b};
+	}).map(asType(T.COMPARISON));
 
-const primitive = A.choice([string, boolean, reference, number]),
+const primitive = A.choice([comparison, string, boolean, reference, number]),
 	  operator = A.anyOfString("+-/*^").map(asType(T.OPERATOR));
 
 //#endregion
