@@ -135,7 +135,7 @@ const blockStatement = (name, beforeBlock) => A.coroutine(function*() {
 const ifStatement = blockStatement("if", boolean);
 const line = A.choice([ifStatement, assignment, command]);
 const program = A.sepBy(commandSeperator)(line);
-//#endregion
+// #endregion
 
 module.exports = function(code) {
 	return program.run(code.replace(/\r\n/g, "\n"));
